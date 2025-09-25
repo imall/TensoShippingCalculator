@@ -1,28 +1,27 @@
 using System.Text.Json.Serialization;
 
 namespace TensoShippingCalculator.Models
-{
-  /// <summary>
-  /// 包裹資訊模型
-  /// </summary>
+{    /// <summary>
+     /// 包裹資訊模型
+     /// </summary>
   public class Package
   {
-    public int Weight { get; set; } // 重量 (公克)
-    public int Length { get; set; } // 長度 (公分)
-    public int Width { get; set; }  // 寬度 (公分)
-    public int Height { get; set; } // 高度 (公分)
+    public decimal Weight { get; set; } // 重量 (公克)
+    public decimal Length { get; set; } // 長度 (公分)
+    public decimal Width { get; set; }  // 寬度 (公分)
+    public decimal Height { get; set; } // 高度 (公分)
     public string Name { get; set; } = string.Empty; // 包裹名稱
 
     /// <summary>
     /// 計算體積重量 (公克)
     /// 體積重量 = 長 × 寬 × 高 (cm³) ÷ 5000
     /// </summary>
-    public int VolumetricWeight => (Length * Width * Height) / 5000;
+    public decimal VolumetricWeight => (Length * Width * Height) / 5000m;
 
     /// <summary>
     /// 取得計費重量 (實際重量與體積重量的較大值)
     /// </summary>
-    public int BillableWeight => Math.Max(Weight, VolumetricWeight);
+    public decimal BillableWeight => Math.Max(Weight, VolumetricWeight);
   }
 
   /// <summary>

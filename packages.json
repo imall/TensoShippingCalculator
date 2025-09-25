@@ -1,16 +1,16 @@
 [
   {
     "Name": "包裹1",
-    "Weight": 1500,
-    "Length": 25,
-    "Width": 20,
-    "Height": 15
+    "Weight": 1748,
+    "Length": 26,
+    "Width": 32,
+    "Height": 10.5
   },
   {
-    "Name": "包裹2", 
-    "Weight": 2000,
-    "Length": 30,
-    "Width": 25,
-    "Height": 10
+    "Name": "包裹2",
+    "Weight": 1748,
+    "Length": 26,
+    "Width": 32,
+    "Height": 10.5
   }
 ]

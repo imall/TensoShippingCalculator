@@ -239,7 +239,7 @@ namespace TensoShippingCalculator.Services
       var totalWeight = consolidatedPackage.Weight;
 
       Console.WriteLine($"   包裹數量: {packages.Count} 件");
-      Console.WriteLine($"   總重量: {totalWeight / 1000.0:F1} kg (限制: 30 kg)");
+      Console.WriteLine($"   總重量: {totalWeight / 1000m:F1} kg (限制: 30 kg)");
 
       if (totalWeight > 30000)
       {
