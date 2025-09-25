@@ -360,3 +360,6 @@ Thumbs.db
 # 可以在這裡添加專案特定的忽略項目
 appsettings.local.json
 *.log
+
+# Generated output files
+result.md
