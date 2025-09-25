@@ -1,4 +1,5 @@
-﻿using TensoShippingCalculator.Models;
+﻿using System.Text.Json;
+using TensoShippingCalculator.Models;
 using TensoShippingCalculator.Services;
 
 namespace TensoShippingCalculator
@@ -10,15 +11,8 @@ namespace TensoShippingCalculator
       Console.WriteLine("Tenso 集中包裝划算度計算器");
       Console.WriteLine("===============================");
 
-      // 範例包裹資料 - 您可以修改這些資料來測試
-      var packages = new List<Package>
-            {
-                new Package { Name = "包裹1", Weight = 1500, Length = 25, Width = 20, Height = 15 },
-                new Package { Name = "包裹2", Weight = 2000, Length = 30, Width = 25, Height = 10 },
-                new Package { Name = "包裹3", Weight = 800, Length = 15, Width = 12, Height = 8 },
-                new Package { Name = "包裹4", Weight = 3000, Length = 35, Width = 30, Height = 20 },
-                new Package { Name = "包裹5", Weight = 1200, Length = 20, Width = 18, Height = 12 }
-            };
+      // 從 JSON 檔案讀取包裹資料
+      var packages = await LoadPackagesFromJsonAsync("packages.json");
 
       try
       {
@@ -35,6 +29,58 @@ namespace TensoShippingCalculator
 
       Console.WriteLine("\n按任意鍵結束...");
       Console.ReadKey();
+    }
+
+    /// <summary>
+    /// 從 JSON 檔案載入包裹資料
+    /// </summary>
+    /// <param name="filePath">JSON 檔案路徑</param>
+    /// <returns>包裹清單</returns>
+    private static async Task<List<Package>> LoadPackagesFromJsonAsync(string filePath)
+    {
+      try
+      {
+        if (!File.Exists(filePath))
+        {
+          Console.WriteLine($"⚠️  找不到檔案: {filePath}");
+          Console.WriteLine("使用預設範例資料...");
+          return GetDefaultPackages();
+        }
+
+        var jsonContent = await File.ReadAllTextAsync(filePath);
+        var packages = JsonSerializer.Deserialize<List<Package>>(jsonContent);
+        
+        if (packages == null || packages.Count == 0)
+        {
+          Console.WriteLine("⚠️  JSON 檔案為空或格式錯誤，使用預設範例資料...");
+          return GetDefaultPackages();
+        }
+
+        Console.WriteLine($"✓ 成功從 {filePath} 載入 {packages.Count} 個包裹");
+        return packages;
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"⚠️  讀取 JSON 檔案時發生錯誤: {ex.Message}");
+        Console.WriteLine("使用預設範例資料...");
+        return GetDefaultPackages();
+      }
+    }
+
+    /// <summary>
+    /// 取得預設包裹資料
+    /// </summary>
+    /// <returns>預設包裹清單</returns>
+    private static List<Package> GetDefaultPackages()
+    {
+      return new List<Package>
+      {
+        new Package { Name = "包裹1", Weight = 1500, Length = 25, Width = 20, Height = 15 },
+        new Package { Name = "包裹2", Weight = 2000, Length = 30, Width = 25, Height = 10 },
+        new Package { Name = "包裹3", Weight = 800, Length = 15, Width = 12, Height = 8 },
+        new Package { Name = "包裹4", Weight = 3000, Length = 35, Width = 30, Height = 20 },
+        new Package { Name = "包裹5", Weight = 1200, Length = 20, Width = 18, Height = 12 }
+      };
     }
 
     /// <summary>

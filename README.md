@@ -25,16 +25,33 @@ dotnet run
 
 ### 自訂包裹資料
 
-修改 `Program.cs` 中的範例資料：
+修改 `packages.json` 檔案來設定您的包裹資料：
 
-```csharp
-var packages = new List<Package>
-{
-    new Package { Name = "包裹1", Weight = 1500, Length = 25, Width = 20, Height = 15 },
-    new Package { Name = "包裹2", Weight = 2000, Length = 30, Width = 25, Height = 10 },
-    // 添加更多包裹...
-};
+```json
+[
+  {
+    "Name": "包裹1",
+    "Weight": 1500,
+    "Length": 25,
+    "Width": 20,
+    "Height": 15
+  },
+  {
+    "Name": "包裹2", 
+    "Weight": 2000,
+    "Length": 30,
+    "Width": 25,
+    "Height": 10
+  }
+]
 ```
+
+**參數說明**：
+- `Name`: 包裹名稱 (字串)
+- `Weight`: 重量，單位公克 (整數)
+- `Length`: 長度，單位公分 (整數)
+- `Width`: 寬度，單位公分 (整數)  
+- `Height`: 高度，單位公分 (整數)
 
 ## 集中包裝服務說明
 
@@ -63,6 +80,7 @@ TensoShippingCalculator/
 ├── Models.cs           # 資料模型定義
 ├── Services.cs         # API 服務和計算邏輯
 ├── Program.cs          # 主程式進入點
+├── packages.json       # 包裹資料設定檔
 └── README.md          # 專案說明文件
 ```
 
