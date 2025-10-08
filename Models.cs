@@ -141,13 +141,13 @@ namespace TensoShippingCalculator.Models
     public string TotalFee { get; set; } = string.Empty;
 
     [JsonPropertyName("original_total_fee")]
-    public int OriginalTotalFee { get; set; }
+    public int? OriginalTotalFee { get; set; }
 
     [JsonPropertyName("original_shipping_fee")]
-    public int OriginalShippingFee { get; set; }
+    public int? OriginalShippingFee { get; set; }
 
     [JsonPropertyName("original_service_fee")]
-    public int OriginalServiceFee { get; set; }
+    public int? OriginalServiceFee { get; set; }
 
     [JsonPropertyName("weight_limits_kg")]
     public string WeightLimitsKg { get; set; } = string.Empty;
@@ -163,6 +163,76 @@ namespace TensoShippingCalculator.Models
         }
         return 0;
       }
+    }
+
+    /// <summary>
+    /// 安全地取得總費用數值
+    /// 優先使用 original_total_fee，如果不存在則嘗試解析 total_fee 字串
+    /// </summary>
+    public int GetTotalFeeValue()
+    {
+      // 優先使用 original_total_fee (數字型態)
+      if (OriginalTotalFee.HasValue && OriginalTotalFee.Value > 0)
+      {
+        return OriginalTotalFee.Value;
+      }
+
+      // 如果 original_total_fee 不存在，嘗試解析 total_fee 字串
+      if (!string.IsNullOrEmpty(TotalFee) && TotalFee != "--")
+      {
+        // 移除逗號和其他非數字字符
+        var cleanedValue = TotalFee.Replace(",", "").Replace("日元", "").Trim();
+        if (int.TryParse(cleanedValue, out int result))
+        {
+          return result;
+        }
+      }
+
+      return 0;
+    }
+
+    /// <summary>
+    /// 安全地取得運費數值
+    /// </summary>
+    public int GetShippingFeeValue()
+    {
+      if (OriginalShippingFee.HasValue && OriginalShippingFee.Value > 0)
+      {
+        return OriginalShippingFee.Value;
+      }
+
+      if (!string.IsNullOrEmpty(ShippingFee) && ShippingFee != "--")
+      {
+        var cleanedValue = ShippingFee.Replace(",", "").Replace("日元", "").Trim();
+        if (int.TryParse(cleanedValue, out int result))
+        {
+          return result;
+        }
+      }
+
+      return 0;
+    }
+
+    /// <summary>
+    /// 安全地取得服務費數值
+    /// </summary>
+    public int GetServiceFeeValue()
+    {
+      if (OriginalServiceFee.HasValue && OriginalServiceFee.Value > 0)
+      {
+        return OriginalServiceFee.Value;
+      }
+
+      if (!string.IsNullOrEmpty(ServiceFee) && ServiceFee != "--")
+      {
+        var cleanedValue = ServiceFee.Replace(",", "").Replace("日元", "").Trim();
+        if (int.TryParse(cleanedValue, out int result))
+        {
+          return result;
+        }
+      }
+
+      return 0;
     }
   }
 

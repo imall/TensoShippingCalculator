@@ -10,21 +10,35 @@ namespace TensoShippingCalculator
     {
       Console.WriteLine("Tenso 集中包裝划算度計算器");
       Console.WriteLine("===============================");
+      Console.WriteLine("請選擇功能:");
+      Console.WriteLine("1. 計算現有包裹的集中包裝划算度");
+      Console.WriteLine("2. 成本分析 - 分析何時個別寄送比較划算");
+      Console.Write("請輸入選項 (1 或 2): ");
 
-      // 從 JSON 檔案讀取包裹資料
-      var packages = await LoadPackagesFromJsonAsync("packages.json");
+      var choice = Console.ReadLine();
 
-      try
+      if (choice == "2")
       {
-        using var calculationService = new ShippingCalculationService();
-        var result = await calculationService.CalculateConsolidationBenefitAsync(packages);
-
-        // 顯示詳細結果並輸出到檔案
-        await ShowDetailedResultsAsync(result);
+        await CostAnalysisProgram.AnalyzeCostEfficiencyAsync();
       }
-      catch (Exception ex)
+      else
       {
-        Console.WriteLine($"發生錯誤: {ex.Message}");
+        // 原有的計算功能
+        // 從 JSON 檔案讀取包裹資料
+        var packages = await LoadPackagesFromJsonAsync("packages.json");
+
+        try
+        {
+          using var calculationService = new ShippingCalculationService();
+          var result = await calculationService.CalculateConsolidationBenefitAsync(packages);
+
+          // 顯示詳細結果並輸出到檔案
+          await ShowDetailedResultsAsync(result);
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine($"發生錯誤: {ex.Message}");
+        }
       }
 
       Console.WriteLine("\n按任意鍵結束...");
@@ -119,26 +133,26 @@ namespace TensoShippingCalculator
         if (individual.BestOption != null)
         {
           outputLines.Add($"- **最佳選項**: {individual.BestOption.Name}");
-          outputLines.Add($"- **運費**: {individual.BestOption.OriginalShippingFee:N0} 日元");
-          outputLines.Add($"- **手續費**: {individual.BestOption.OriginalServiceFee:N0} 日元");
-          outputLines.Add($"- **總計**: {individual.BestOption.OriginalTotalFee:N0} 日元");
+          outputLines.Add($"- **運費**: {individual.BestOption.GetShippingFeeValue():N0} 日元");
+          outputLines.Add($"- **手續費**: {individual.BestOption.GetServiceFeeValue():N0} 日元");
+          outputLines.Add($"- **總計**: {individual.BestOption.GetTotalFeeValue():N0} 日元");
 
           Console.WriteLine($"  最佳選項: {individual.BestOption.Name}");
-          Console.WriteLine($"  運費: {individual.BestOption.OriginalShippingFee:N0} 日元");
-          Console.WriteLine($"  手續費: {individual.BestOption.OriginalServiceFee:N0} 日元");
-          Console.WriteLine($"  總計: {individual.BestOption.OriginalTotalFee:N0} 日元");
+          Console.WriteLine($"  運費: {individual.BestOption.GetShippingFeeValue():N0} 日元");
+          Console.WriteLine($"  手續費: {individual.BestOption.GetServiceFeeValue():N0} 日元");
+          Console.WriteLine($"  總計: {individual.BestOption.GetTotalFeeValue():N0} 日元");
         }
 
         // 顯示所有可用選項
-        var availableOptions = individual.ShippingOptions.Where(o => o.CanUse && o.OriginalTotalFee > 0).ToList();
+        var availableOptions = individual.ShippingOptions.Where(o => o.CanUse && o.GetTotalFeeValue() > 0).ToList();
         if (availableOptions.Count > 1)
         {
           outputLines.Add("- **其他選項**:");
           Console.WriteLine("  其他選項:");
           foreach (var option in availableOptions.Skip(1))
           {
-            outputLines.Add($"  - {option.Name}: {option.OriginalTotalFee:N0} 日元 ({option.DeliveryDays} 天)");
-            Console.WriteLine($"    {option.Name}: {option.OriginalTotalFee:N0} 日元 ({option.DeliveryDays} 天)");
+            outputLines.Add($"  - {option.Name}: {option.GetTotalFeeValue():N0} 日元 ({option.DeliveryDays} 天)");
+            Console.WriteLine($"    {option.Name}: {option.GetTotalFeeValue():N0} 日元 ({option.DeliveryDays} 天)");
           }
         }
         outputLines.Add("");
@@ -162,15 +176,15 @@ namespace TensoShippingCalculator
         if (consolidated.BestOption != null)
         {
           outputLines.Add($"- **最佳運送方式**: {consolidated.BestOption.Name}");
-          outputLines.Add($"- **運費**: {consolidated.BestOption.OriginalShippingFee:N0} 日元");
-          outputLines.Add($"- **Tenso手續費**: {consolidated.BestOption.OriginalServiceFee:N0} 日元");
-          outputLines.Add($"- **運送總計**: {consolidated.BestOption.OriginalTotalFee:N0} 日元");
+          outputLines.Add($"- **運費**: {consolidated.BestOption.GetShippingFeeValue():N0} 日元");
+          outputLines.Add($"- **Tenso手續費**: {consolidated.BestOption.GetServiceFeeValue():N0} 日元");
+          outputLines.Add($"- **運送總計**: {consolidated.BestOption.GetTotalFeeValue():N0} 日元");
           outputLines.Add($"- **含集中包裝費總計**: {consolidated.TotalCostWithFee:N0} 日元");
 
           Console.WriteLine($"  最佳運送方式: {consolidated.BestOption.Name}");
-          Console.WriteLine($"  運費: {consolidated.BestOption.OriginalShippingFee:N0} 日元");
-          Console.WriteLine($"  Tenso手續費: {consolidated.BestOption.OriginalServiceFee:N0} 日元");
-          Console.WriteLine($"  運送總計: {consolidated.BestOption.OriginalTotalFee:N0} 日元");
+          Console.WriteLine($"  運費: {consolidated.BestOption.GetShippingFeeValue():N0} 日元");
+          Console.WriteLine($"  Tenso手續費: {consolidated.BestOption.GetServiceFeeValue():N0} 日元");
+          Console.WriteLine($"  運送總計: {consolidated.BestOption.GetTotalFeeValue():N0} 日元");
           Console.WriteLine($"  含集中包裝費總計: {consolidated.TotalCostWithFee:N0} 日元");
         }
       }
@@ -184,7 +198,7 @@ namespace TensoShippingCalculator
       Console.WriteLine("最終建議");
       Console.WriteLine(new string('=', 60));
 
-      var totalIndividual = result.IndividualResults.Sum(r => r.BestOption?.OriginalTotalFee ?? 0);
+      var totalIndividual = result.IndividualResults.Sum(r => r.BestOption?.GetTotalFeeValue() ?? 0);
       var totalConsolidated = result.ConsolidatedResult?.TotalCostWithFee ?? 0;
 
       outputLines.Add($"- **個別寄送總費用**: {totalIndividual:N0} 日元");

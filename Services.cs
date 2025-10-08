@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using TensoShippingCalculator.Models;
+using static System.Int32;
 
 namespace TensoShippingCalculator.Services
 {
@@ -37,6 +38,7 @@ namespace TensoShippingCalculator.Services
         };
 
         var json = JsonSerializer.Serialize(request);
+        Console.WriteLine(json);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         Console.WriteLine($"正在查詢 {package.Name} 的運費...");
@@ -47,6 +49,7 @@ namespace TensoShippingCalculator.Services
         if (response.IsSuccessStatusCode)
         {
           var responseJson = await response.Content.ReadAsStringAsync();
+          Console.WriteLine(responseJson);
           var shippingOptions = JsonSerializer.Deserialize<List<TensoApiResponse>>(responseJson);
 
           if (shippingOptions != null)
@@ -124,7 +127,7 @@ namespace TensoShippingCalculator.Services
 
         if (bestOption != null)
         {
-          Console.WriteLine($"   {package.Name}: {bestOption.Name} - {bestOption.OriginalTotalFee:N0} 日元");
+          Console.WriteLine($"   {package.Name}: {bestOption.Name} - {bestOption.GetTotalFeeValue():N0} 日元");
         }
       }
       result.IndividualResults = individualResults;
@@ -145,7 +148,7 @@ namespace TensoShippingCalculator.Services
         ShippingOptions = consolidatedOptions,
         BestOption = consolidatedBestOption,
         ConsolidationFee = consolidationFee,
-        TotalCostWithFee = (consolidatedBestOption?.OriginalTotalFee ?? 0) + consolidationFee
+        TotalCostWithFee = (consolidatedBestOption?.GetTotalFeeValue() ?? 0) + consolidationFee
       };
 
       Console.WriteLine($"   集中包裝尺寸: {consolidatedPackage.Length}x{consolidatedPackage.Width}x{consolidatedPackage.Height}cm");
@@ -153,7 +156,7 @@ namespace TensoShippingCalculator.Services
       if (consolidatedBestOption != null)
       {
         Console.WriteLine($"   最佳運送方式: {consolidatedBestOption.Name}");
-        Console.WriteLine($"   運費: {consolidatedBestOption.OriginalTotalFee:N0} 日元");
+        Console.WriteLine($"   運費: {consolidatedBestOption.GetTotalFeeValue():N0} 日元");
         Console.WriteLine($"   集中包裝手續費: {consolidationFee:N0} 日元");
         Console.WriteLine($"   總費用: {result.ConsolidatedResult.TotalCostWithFee:N0} 日元");
       }
@@ -162,7 +165,7 @@ namespace TensoShippingCalculator.Services
       Console.WriteLine("\n3. 比較分析:");
       Console.WriteLine(new string('-', 40));
 
-      var totalIndividualCost = individualResults.Sum(r => r.BestOption?.OriginalTotalFee ?? 0);
+      var totalIndividualCost = individualResults.Sum(r => r.BestOption?.GetTotalFeeValue() ?? 0);
       var totalConsolidatedCost = result.ConsolidatedResult.TotalCostWithFee;
 
       result.IsConsolidationBeneficial = totalConsolidatedCost < totalIndividualCost;
@@ -194,8 +197,8 @@ namespace TensoShippingCalculator.Services
     private TensoApiResponse? GetBestShippingOption(List<TensoApiResponse> options)
     {
       return options
-          .Where(o => o.CanUse && o.OriginalTotalFee > 0)
-          .OrderBy(o => o.OriginalTotalFee)
+          .Where(o => o.CanUse && o.GetTotalFeeValue() > 0)
+          .OrderBy(o => o.GetTotalFeeValue())
           .FirstOrDefault();
     }
 

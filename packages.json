@@ -1,16 +1,16 @@
 [
   {
-    "Name": "包裹1",
-    "Weight": 1748,
-    "Length": 26,
+    "Name": "株式會社",
+    "Weight":  370 ,
+    "Length": 26.00,
     "Width": 32,
     "Height": 10.5
   },
   {
-    "Name": "包裹2",
-    "Weight": 1748,
-    "Length": 26,
-    "Width": 32,
-    "Height": 10.5
+    "Name": "hobby stock",
+    "Weight":  2870 ,
+    "Length": 80.50 ,
+    "Width": 25.00 ,
+    "Height": 12.00
   }
 ]
