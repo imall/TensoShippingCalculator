@@ -96,22 +96,22 @@ namespace TensoShippingCalculator
                 {
                     Console.WriteLine($"=== {scenario.Name} ===");
                     Console.WriteLine($"描述: {scenario.Description}");
-                    
+
                     var result = await calculationService.CalculateConsolidationBenefitAsync(scenario.Packages);
-                    
+
                     // 計算個別寄送總費用
-                    var individualTotal = result.IndividualResults.Sum(r => int.TryParse(r.BestOption?.TotalFee.Replace(",",""), out var fee) ? fee : 0);
+                    var individualTotal = result.IndividualResults.Sum(r => int.TryParse(r.BestOption?.TotalFee.Replace(",", ""), out var fee) ? fee : 0);
                     var consolidatedTotal = result.ConsolidatedResult.TotalCostWithFee;
                     var consolidationFee = CalculateConsolidationFee(scenario.Packages.Count);
-                    
+
                     Console.WriteLine($"包裹數量: {scenario.Packages.Count}");
                     Console.WriteLine($"總重量: {scenario.Packages.Sum(p => p.Weight):N0}g");
                     Console.WriteLine($"集中包裝尺寸: {result.ConsolidatedResult.ConsolidatedPackage.Length}×{result.ConsolidatedResult.ConsolidatedPackage.Width}×{result.ConsolidatedResult.ConsolidatedPackage.Height}cm");
                     Console.WriteLine($"個別寄送總費用: {individualTotal:N0} 日元");
-                    Console.WriteLine($"集中包裝運費: {result.ConsolidatedResult.BestOption?.TotalFee :N0} 日元");
+                    Console.WriteLine($"集中包裝運費: {result.ConsolidatedResult.BestOption?.TotalFee:N0} 日元");
                     Console.WriteLine($"集中包裝手續費: {consolidationFee:N0} 日元");
                     Console.WriteLine($"集中包裝總費用: {consolidatedTotal:N0} 日元");
-                    
+
                     if (result.IsConsolidationBeneficial)
                     {
                         Console.WriteLine($"✅ 集中包裝划算 - 節省 {result.TotalSavings:N0} 日元 ({(result.TotalSavings / individualTotal * 100):F1}%)");
@@ -123,7 +123,7 @@ namespace TensoShippingCalculator
 
                     // 分析原因
                     AnalyzeReason(scenario, result);
-                    
+
                     Console.WriteLine();
                 }
                 catch (Exception ex)
@@ -177,30 +177,30 @@ namespace TensoShippingCalculator
         private static void AnalyzeReason(AnalysisScenario scenario, ShippingCalculationResult result)
         {
             Console.WriteLine("分析原因:");
-            
-            var individualTotal = result.IndividualResults.Sum(r => int.TryParse(r.BestOption?.TotalFee.Replace(",",""), out var fee) ? fee : 0);
+
+            var individualTotal = result.IndividualResults.Sum(r => int.TryParse(r.BestOption?.TotalFee.Replace(",", ""), out var fee) ? fee : 0);
             var consolidationFee = CalculateConsolidationFee(scenario.Packages.Count);
-            
+
             // 分析個別包裹使用的運送方式
             var individualMethods = result.IndividualResults
                 .Where(r => r.BestOption != null)
                 .GroupBy(r => r.BestOption.Name)
                 .Select(g => $"{g.Key} ({g.Count()}個)")
                 .ToList();
-            
+
             Console.WriteLine($"  個別運送方式: {string.Join(", ", individualMethods)}");
             Console.WriteLine($"  集中包裝運送方式: {result.ConsolidatedResult.BestOption?.Name ?? "無可用選項"}");
             Console.WriteLine($"  集中包裝手續費占比: {(consolidationFee / (double)individualTotal * 100):F1}%");
-            
+
             // 體積效率分析
             var individualVolumes = scenario.Packages.Sum(p => p.Length * p.Width * p.Height);
-            var consolidatedVolume = result.ConsolidatedResult.ConsolidatedPackage.Length * 
-                                   result.ConsolidatedResult.ConsolidatedPackage.Width * 
+            var consolidatedVolume = result.ConsolidatedResult.ConsolidatedPackage.Length *
+                                   result.ConsolidatedResult.ConsolidatedPackage.Width *
                                    result.ConsolidatedResult.ConsolidatedPackage.Height;
             var volumeEfficiency = (double)individualVolumes / (double)consolidatedVolume * 100;
-            
+
             Console.WriteLine($"  空間利用效率: {volumeEfficiency:F1}% (個別體積總和/集中包裝體積)");
-            
+
             if (volumeEfficiency < 50)
             {
                 Console.WriteLine("  ⚠️ 空間利用效率低，可能導致體積重量增加");

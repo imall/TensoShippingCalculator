@@ -167,17 +167,11 @@ namespace TensoShippingCalculator.Models
 
     /// <summary>
     /// 安全地取得總費用數值
-    /// 優先使用 original_total_fee，如果不存在則嘗試解析 total_fee 字串
+    /// 優先使用 total_fee 字串（API 最終顯示值），如果無法解析則使用 original_total_fee
     /// </summary>
     public int GetTotalFeeValue()
     {
-      // 優先使用 original_total_fee (數字型態)
-      if (OriginalTotalFee.HasValue && OriginalTotalFee.Value > 0)
-      {
-        return OriginalTotalFee.Value;
-      }
-
-      // 如果 original_total_fee 不存在，嘗試解析 total_fee 字串
+      // 優先使用 total_fee (字串型態，API 的最終顯示值)
       if (!string.IsNullOrEmpty(TotalFee) && TotalFee != "--")
       {
         // 移除逗號和其他非數字字符
@@ -188,19 +182,22 @@ namespace TensoShippingCalculator.Models
         }
       }
 
+      // 如果 total_fee 無法解析，才使用 original_total_fee 作為備用
+      if (OriginalTotalFee.HasValue && OriginalTotalFee.Value > 0)
+      {
+        return OriginalTotalFee.Value;
+      }
+
       return 0;
     }
 
     /// <summary>
     /// 安全地取得運費數值
+    /// 優先使用 shipping_fee 字串（API 最終顯示值），如果無法解析則使用 original_shipping_fee
     /// </summary>
     public int GetShippingFeeValue()
     {
-      if (OriginalShippingFee.HasValue && OriginalShippingFee.Value > 0)
-      {
-        return OriginalShippingFee.Value;
-      }
-
+      // 優先使用 shipping_fee (字串型態)
       if (!string.IsNullOrEmpty(ShippingFee) && ShippingFee != "--")
       {
         var cleanedValue = ShippingFee.Replace(",", "").Replace("日元", "").Trim();
@@ -210,19 +207,22 @@ namespace TensoShippingCalculator.Models
         }
       }
 
+      // 備用：使用 original_shipping_fee
+      if (OriginalShippingFee.HasValue && OriginalShippingFee.Value > 0)
+      {
+        return OriginalShippingFee.Value;
+      }
+
       return 0;
     }
 
     /// <summary>
     /// 安全地取得服務費數值
+    /// 優先使用 service_fee 字串（API 最終顯示值），如果無法解析則使用 original_service_fee
     /// </summary>
     public int GetServiceFeeValue()
     {
-      if (OriginalServiceFee.HasValue && OriginalServiceFee.Value > 0)
-      {
-        return OriginalServiceFee.Value;
-      }
-
+      // 優先使用 service_fee (字串型態)
       if (!string.IsNullOrEmpty(ServiceFee) && ServiceFee != "--")
       {
         var cleanedValue = ServiceFee.Replace(",", "").Replace("日元", "").Trim();
@@ -230,6 +230,12 @@ namespace TensoShippingCalculator.Models
         {
           return result;
         }
+      }
+
+      // 備用：使用 original_service_fee
+      if (OriginalServiceFee.HasValue && OriginalServiceFee.Value > 0)
+      {
+        return OriginalServiceFee.Value;
       }
 
       return 0;
